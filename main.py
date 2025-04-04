@@ -50,5 +50,8 @@ app.add_handler(CommandHandler("adormecer", adormecer))
 app.add_handler(CommandHandler("despertar", despertar))
 app.add_handler(CommandHandler("conexao", conexao))
 app.add_handler(CommandHandler("nucleo", nucleo))
-
-app.run_polling()
+application.run_webhook(
+    listen="0.0.0.0",
+    port=10000,
+    webhook_url="https://charlicore-telegram.onrender.com"
+)
