@@ -1,46 +1,31 @@
-import os
 from flask import Flask, request
 from telegram import Bot, Update
-from telegram.ext import Dispatcher, CommandHandler, CallbackContext
-import logging
+from telegram.ext import Dispatcher, CommandHandler
+import os
 
-# Configuração do logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+TOKEN = os.getenv("BOT_TOKEN")
+bot = Bot(token=TOKEN)
 
-# Inicialização do Flask
 app = Flask(__name__)
 
-# Obtendo o token do bot e a URL do webhook das variáveis de ambiente
-TOKEN = os.environ.get("TELEGRAM_TOKEN")
-RENDER_URL = os.environ.get("RENDER_URL")
+@app.route('/')
+def home():
+    return 'CharliCore Telegram está vivo!'
 
-# Inicialização do bot e do dispatcher
-bot = Bot(token=TOKEN)
-dispatcher = Dispatcher(bot, None, workers=0)
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    if request.method == "POST":
+        update = Update.de_json(request.get_json(force=True), bot)
+        dispatcher.process_update(update)
+    return 'OK'
 
-# Definição do manipulador para o comando /start
-def start(update: Update, context: CallbackContext):
-    update.message.reply_text("Olá! Eu sou o CharliCore no Telegram.")
+def start(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Olá, eu sou o CharliCore!")
 
-# Adicionando o manipulador ao dispatcher
+from telegram.ext import CallbackContext
+
+dispatcher = Dispatcher(bot, None, use_context=True)
 dispatcher.add_handler(CommandHandler("start", start))
 
-# Rota para o webhook
-@app.route(f'/{TOKEN}', methods=['POST'])
-def webhook():
-    update = Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
-    return 'ok'
-
-# Rota raiz para verificar se o app está rodando
-@app.route('/')
-def index():
-    return 'CharliCore está ativo!'
-
 if __name__ == '__main__':
-    # Configurando o webhook
-    bot.set_webhook(url=f"{RENDER_URL}/{TOKEN}")
-    # Obtendo a porta do ambiente ou usando 5000 como padrão
-    port = int(os.environ.get("PORT", 5000))
-    # Iniciando o servidor Flask
-    app.run(host="0.0.0.0", port=port)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
