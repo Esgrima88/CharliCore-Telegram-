@@ -28,6 +28,6 @@ def webhook():
         bot.send_message(chat_id=chat_id, text="Olá, sou o CharliCore no Telegram!")
 
     return "OK"
-    if __name__ == '__main__':
+if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Render fornece a porta em PORT
     app.run(host='0.0.0.0', port=port)
