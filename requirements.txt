@@ -1,2 +1,2 @@
-flask
-python-telegram-bot==20.0
+python-telegram-bot==20.3
+aiosqlite==0.21.0
